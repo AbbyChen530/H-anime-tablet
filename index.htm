@@ -18838,8 +18838,11 @@ PMingLiU;mso-fareast-language:ZH-TW'><o:p></o:p></span></h1>
 
 </div>
 
+html<!-- 1. 引入最新版截圖工具庫（支援跨來源圖片讀取） -->
+<script src="https://cloudflare.com"></script>
+
 <style>
-  /* 1. 經典森林深綠色與白色文字 */
+  /* 經典森林深綠色與白色文字 */
   .clicked-style {
     background-color: #1b5e20 !important; 
     color: #ffffff !important;           
@@ -18850,7 +18853,7 @@ PMingLiU;mso-fareast-language:ZH-TW'><o:p></o:p></span></h1>
     color: #a5d6a7 !important; 
   }
 
-  /* 一鍵截圖按鈕樣式 */
+  /* 浮動的一鍵截圖按鈕樣式 */
   .screenshot-btn {
     position: fixed;
     top: 20px;
@@ -18873,62 +18876,47 @@ PMingLiU;mso-fareast-language:ZH-TW'><o:p></o:p></span></h1>
 
 <script>
   window.onload = function() {
-    // 1. 自動讓表格裡的所有超連結都在「新分頁/新視窗」打開
+    // 功能一：自動讓表格裡的所有超連結都在「新分頁」打開
     var links = document.getElementsByTagName('a');
     for (var j = 0; j < links.length; j++) {
       links[j].setAttribute('target', '_blank');
     }
 
-    // 2. 自動?生「一鍵截圖」按鈕
+    // 功能二：自動產生「一鍵截圖」按鈕
     var btn = document.createElement('button');
-    btn.innerText = 'Download Screenshot'; 
+    btn.innerText = '📸 一鍵截圖下載(PNG)'; 
     btn.className = 'screenshot-btn';
     document.body.appendChild(btn);
 
-    // 3. 終極截圖功能
+    // 功能三：全新優化的截圖功能
     btn.addEventListener('click', function() {
-      btn.style.display = 'none'; // 隱藏按鈕
+      btn.style.display = 'none'; // 隱藏按鈕避免被拍進去
 
-      var width = document.documentElement.scrollWidth;
-      var height = document.documentElement.scrollHeight;
-      var htmlString = new XMLSerializer().serializeToString(document.documentElement);
-      
-      var svgData = '<svg xmlns="http://w3.org" width="' + width + '" height="' + height + '">' +
-                    '<foreignObject width="100%" height="100%">' +
-                    '<div xmlns="http://w3.org">' +
-                    htmlString +
-                    '</div>' +
-                    '</foreignObject>' +
-                    '</svg>';
-
-      var img = new Image();
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
-
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-
+      // 呼叫工具庫，並加入安全通行參數
+      html2canvas(document.body, {
+        useCORS: true,          // 關鍵設定：允許跨資料夾讀取圖片
+        allowTaint: false,      // 保護畫布不被安全機制污染
+        backgroundColor: '#ffffff', // 設定背景為純白
+        scale: 1.5              // 稍微放大提升截圖清晰度
+      }).then(function(canvas) {
+        // 建立隱藏下載連結
         var link = document.createElement('a');
-        link.download = 'my_timeline_progress.png';
+        link.download = '我的動畫表格進度表.png'; // 儲存的檔案名稱
         link.href = canvas.toDataURL('image/png');
         link.click();
         
-        btn.style.display = 'block'; // 恢復按鈕
-      };
-      
-      img.onerror = function() {
-        alert('本地安全限制?截了截圖。請使用鍵盤 [Win + Shift + S] 手動截圖最安全！');
+        btn.style.display = 'block'; // 截圖完畢，把按鈕顯示回來
+      }).catch(function(error) {
+        alert('截圖還是失敗了。請使用鍵盤 [Win + Shift + S] 手動截圖最安全！');
         btn.style.display = 'block';
-      };
+      });
     });
 
-    // 4. 表格點?深綠色變色功能
+    // 功能四：表格點擊深綠色變色功能
     var cells = document.getElementsByTagName('td');
     for (var i = 0; i < cells.length; i++) {
       cells[i].addEventListener('click', function(event) {
+        // 如果點到的是超連結(A)或圖片(IMG)本身，就不變色，維持原本功能
         if (event.target.tagName === 'A' || event.target.tagName === 'IMG') {
           return; 
         }
@@ -18937,7 +18925,6 @@ PMingLiU;mso-fareast-language:ZH-TW'><o:p></o:p></span></h1>
     }
   };
 </script>
-
 
 </body>
 
